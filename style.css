@@ -1,0 +1,60 @@
+/* MENU */
+#menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-family: Arial;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 20px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+body {
+  background-color: #111;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  font-family: "Courier New", Courier, monospace;
+}
+canvas {
+  /*border: 4px solid #fff;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+  */
+  background-color: #000;
+  
+}
+.ui {
+  font-size: 24px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: left;
+  align-items: left;
+    margin-top: 30px;
+    margin-left: 30px;
+  color: white;
+  font-family: Arial;
+
+}
