@@ -1,6 +1,10 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreElement = document.getElementById("score");
+const menu = document.getElementById("menu");
+const menuTitle = document.getElementById("menu-title");
+const menuSubtitle = document.getElementById("menu-subtitle");
+const startButton = document.getElementById("start-button");
 let logoWidth = 300;
 let logoHeight = 200;
 canvas.width = window.innerWidth;
@@ -55,17 +59,48 @@ const aliens = [];
 let alienDirection = 1; // 1 for right, -1 for left
 let alienMoveTimer = 0;
 
-// Initialize Aliens
-for (let row = 0; row < ALIEN_ROWS; row++) {
-  for (let col = 0; col < ALIEN_COLS; col++) {
-    aliens.push({
-      x: col * (ALIEN_WIDTH + 15) + 250,
-      y: row * (ALIEN_HEIGHT + 15) + 20,
-      width: ALIEN_WIDTH,
-      height: ALIEN_HEIGHT,
-      alive: true,
-    });
+function initAliens() {
+  aliens.length = 0;
+  for (let row = 0; row < ALIEN_ROWS; row++) {
+    for (let col = 0; col < ALIEN_COLS; col++) {
+      aliens.push({
+        x: col * (ALIEN_WIDTH + 15) + 250,
+        y: row * (ALIEN_HEIGHT + 15) + 20,
+        width: ALIEN_WIDTH,
+        height: ALIEN_HEIGHT,
+        alive: true,
+      });
+    }
   }
+}
+initAliens();
+
+function showMenu(title, subtitle, buttonText) {
+  menuTitle.innerText = title;
+  menuSubtitle.innerText = subtitle;
+  startButton.innerText = buttonText;
+  menu.style.display = "block";
+}
+
+function hideMenu() {
+  menu.style.display = "none";
+}
+
+function resetGame() {
+  score = 0;
+  scoreElement.innerText = score;
+  gameOver = false;
+  player.x = canvas.width / 2 - PLAYER_WIDTH / 2;
+  player.y = canvas.height - 90;
+  bullets.length = 0;
+  alienDirection = 1;
+  initAliens();
+}
+
+function endGame(message = "GAME OVER") {
+  gameRunning = false;
+  gameOver = true;
+  showMenu(message, `Score: ${score}`, "PLAY AGAIN?");
 }
 
 // Input Handling
@@ -79,6 +114,9 @@ function update() {
   if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
   if (keys["ArrowRight"] && player.x < canvas.width - player.width)
     player.x += player.speed;
+  if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
+  if (keys["ArrowDown"] && player.y < canvas.height - player.height)
+    player.y += player.speed;
 
   // Shoot
   if (keys["Space"]) {
@@ -103,18 +141,30 @@ function update() {
 
   // Move Aliens
   let edgeReached = false;
-  aliens.forEach((alien) => {
-    if (!alien.alive) return;
+  for (const alien of aliens) {
+    if (!alien.alive) continue;
     alien.x += alienDirection * 0.5;
     if (alien.x + alien.width > canvas.width || alien.x < 0) edgeReached = true;
 
-    // Check Lose Condition
-    if (alien.y + alien.height > player.y) gameOver = true;
-  });
+    // Check Lose Condition using enemy/player boundary overlap
+    if (
+      alien.x < player.x + player.width &&
+      alien.x + alien.width > player.x &&
+      alien.y < player.y + player.height &&
+      alien.y + alien.height > player.y
+    ) {
+      endGame("GAME OVER");
+      break;
+    }
+  }
 
   if (edgeReached) {
     alienDirection *= -1;
     aliens.forEach((alien) => (alien.y += 20));
+  }
+
+  if (gameOver) {
+    return;
   }
 
   // Collision Detection
@@ -137,8 +187,8 @@ function update() {
 
   // Check Win
   if (aliens.every((a) => !a.alive)) {
-    //alert("You Win! Earth is safe.");
-    location.reload();
+    endGame("YOU WIN");
+    return;
   }
 }
 
@@ -195,7 +245,8 @@ function draw() {
   }
 }
 function startGame() {
-  document.getElementById("menu").style.display = "none";
+  hideMenu();
+  resetGame();
   gameRunning = true;
   gameLoop();
 }
